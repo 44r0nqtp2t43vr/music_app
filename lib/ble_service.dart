@@ -7,7 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class BLEService extends GetxController {
   final String targetDeviceName;
   final String characteristicUuid = "ffe2"; // Target characteristic UUID (partial match)
-  String lastSentString = "";
+  RxString lastSentString = "<000000000000000000000000000000>".obs;
   RxString serverIP = "".obs;
 
   BluetoothDevice? connectedDevice;
@@ -29,9 +29,17 @@ class BLEService extends GetxController {
     return serverIP.value;
   }
 
+  String getLastSentString() {
+    return lastSentString.value;
+  }
+
   Future<void> setServerIP(String newServerIP) async {
     serverIP.value = newServerIP;
     await asyncPrefs.setString('serverIP', newServerIP);
+  }
+
+  void setLastSentString(String newLastSentString) {
+    lastSentString.value = newLastSentString;
   }
 
   /// Scans for BLE devices and connects to the target device.
@@ -93,15 +101,17 @@ class BLEService extends GetxController {
 
   /// Writes data to the target characteristic.
   Future<void> writeData(String data) async {
-    if (_targetCharacteristic == null) {
-      debugPrint("❌ Cannot write: Characteristic not found.");
-      return;
-    }
+    // if (_targetCharacteristic == null) {
+    //   debugPrint("❌ Cannot write: Characteristic not found.");
+    //   return;
+    // }
 
     List<int> bytes = data.codeUnits;
-    lastSentString = data;
-    await _targetCharacteristic!.write(bytes);
-    debugPrint("✉️ Data sent: $data");
+    setLastSentString(data);
+    if (_targetCharacteristic != null) {
+      await _targetCharacteristic!.write(bytes);
+      debugPrint("✉️ Data sent: $data");
+    }
   }
 
   /// Disconnects from the BLE device.

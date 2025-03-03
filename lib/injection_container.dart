@@ -1,3 +1,4 @@
+import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
 import 'package:music_app/ble_service.dart';
 import 'package:music_app/interface/database_repository.dart';
@@ -13,6 +14,8 @@ Future<void> initializeDependencies() async {
   sl.registerSingleton<BLEService>(BLEService(targetDeviceName: "Gloves_BLE_B04"));
 
   sl.registerSingleton<DatabaseRepository>(DatabaseRepositoryImpl());
+
+  Get.put<BLEService>(sl());
 
   // UseCases
   // sl.registerSingleton<ScanDevicesUseCase>(ScanDevicesUseCase(sl()));
